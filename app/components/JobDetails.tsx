@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Job } from '../types';
 import { createClient } from '@/app/utils/supabase';
-import { Calendar, Clock, MapPin, CreditCard, Edit, Trash2, Camera } from 'lucide-react';
+import { Calendar, Clock, MapPin, CreditCard, Edit, Trash2 } from 'lucide-react';
+import PhotoUpload from './PhotoUpload';
 
 interface JobDetailsProps {
   job: Job;
@@ -29,13 +30,13 @@ export default function JobDetails({ job }: JobDetailsProps) {
     }
   };
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     scheduled: 'bg-yellow-100 text-yellow-800',
     in_progress: 'bg-blue-100 text-blue-800',
     completed: 'bg-green-100 text-green-800',
   };
 
-  const paymentColors = {
+  const paymentColors: Record<string, string> = {
     unpaid: 'bg-red-100 text-red-800',
     paid: 'bg-green-100 text-green-800',
     partial: 'bg-orange-100 text-orange-800',
@@ -131,14 +132,10 @@ export default function JobDetails({ job }: JobDetailsProps) {
         </div>
       )}
 
-      {/* Photos Section - Placeholder for now */}
+      {/* Photos Section */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Photos</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <button className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500 hover:border-blue-500 hover:text-blue-500">
-            <Camera className="w-6 h-6" />
-          </button>
-        </div>
+        <PhotoUpload jobId={job.id} />
       </div>
 
       {/* Created Date */}
