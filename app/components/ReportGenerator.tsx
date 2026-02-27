@@ -117,15 +117,15 @@ export default function ReportGenerator({ filters, onClose }: ReportGeneratorPro
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm">
               <p className="text-sm text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-bold text-green-600">£{totalRevenue.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">€{totalRevenue.toFixed(2)}</p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm">
               <p className="text-sm text-gray-500">Labour</p>
-              <p className="text-lg font-semibold">£{totalLabour.toFixed(2)}</p>
+              <p className="text-lg font-semibold">€{totalLabour.toFixed(2)}</p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm">
               <p className="text-sm text-gray-500">Materials</p>
-              <p className="text-lg font-semibold">£{totalMaterials.toFixed(2)}</p>
+              <p className="text-lg font-semibold">€{totalMaterials.toFixed(2)}</p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm">
               <p className="text-sm text-gray-500">Completed/Unpaid</p>

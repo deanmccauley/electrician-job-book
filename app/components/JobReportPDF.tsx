@@ -151,15 +151,15 @@ const JobReportPDF: React.FC<JobReportPDFProps> = ({ jobs, filters }) => {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Revenue:</Text>
-            <Text style={styles.summaryValue}>£{totalRevenue.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>€{totalRevenue.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Labour:</Text>
-            <Text style={styles.summaryValue}>£{totalLabour.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>€{totalLabour.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Materials:</Text>
-            <Text style={styles.summaryValue}>£{totalMaterials.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>€{totalMaterials.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Completed/Unpaid:</Text>
@@ -185,7 +185,7 @@ const JobReportPDF: React.FC<JobReportPDFProps> = ({ jobs, filters }) => {
             <Text style={styles.col3}>{job.description.substring(0, 30)}...</Text>
             <Text style={styles.col4}>{job.status.replace('_', ' ')}</Text>
             <Text style={styles.col5}>{job.payment_status}</Text>
-            <Text style={styles.col6}>£{(job.total_cost || 0).toFixed(2)}</Text>
+            <Text style={styles.col6}>€{(job.total_cost || 0).toFixed(2)}</Text>
           </View>
         ))}
 

@@ -139,11 +139,11 @@ export default function JobDetails({ job }: JobDetailsProps) {
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Labour Cost:</span>
-              <span className="font-medium">£{job.labour_cost?.toFixed(2) || '0.00'}</span>
+              <span className="font-medium">€{job.labour_cost?.toFixed(2) || '0.00'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Materials Cost:</span>
-              <span className="font-medium">£{job.materials_cost?.toFixed(2) || '0.00'}</span>
+              <span className="font-medium">€{job.materials_cost?.toFixed(2) || '0.00'}</span>
             </div>
             {job.vat_rate && (
               <div className="flex justify-between">
@@ -153,7 +153,7 @@ export default function JobDetails({ job }: JobDetailsProps) {
             )}
             <div className="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200">
               <span>Total:</span>
-              <span className="text-blue-600">£{job.total_cost?.toFixed(2) || '0.00'}</span>
+              <span className="text-blue-600">€{job.total_cost?.toFixed(2) || '0.00'}</span>
             </div>
           </div>
         </div>
