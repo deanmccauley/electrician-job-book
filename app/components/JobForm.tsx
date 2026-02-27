@@ -25,7 +25,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
     location: initialData.location || '',
     labour_cost: initialData.labour_cost || '',
     materials_cost: initialData.materials_cost || '',
-    vat_rate: initialData.vat_rate || '20.0',
+    vat_rate: initialData.vat_rate || '13.5',
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
