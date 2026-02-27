@@ -19,6 +19,10 @@ export interface Job {
   payment_status: PaymentStatus;
   time_spent?: number;
   location?: string;
+  labour_cost?: number;
+  materials_cost?: number;
+  vat_rate?: number;
+  total_cost?: number;
   created_at: string;
   user_id: string;
   photos?: Photo[];
@@ -33,4 +37,7 @@ export interface JobFormData {
   payment_status: PaymentStatus;
   time_spent: string;
   location: string;
+  labour_cost: string;
+  materials_cost: string;
+  vat_rate: string;
 }

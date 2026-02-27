@@ -132,6 +132,33 @@ export default function JobDetails({ job }: JobDetailsProps) {
         </div>
       )}
 
+      {/* Financial Details */}
+      {(job.labour_cost || job.materials_cost) && (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Financial Summary</h2>
+          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Labour Cost:</span>
+              <span className="font-medium">£{job.labour_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Materials Cost:</span>
+              <span className="font-medium">£{job.materials_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+            {job.vat_rate && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">VAT Rate:</span>
+                <span className="font-medium">{job.vat_rate}%</span>
+              </div>
+            )}
+            <div className="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200">
+              <span>Total:</span>
+              <span className="text-blue-600">£{job.total_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Photos Section */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Photos</h2>

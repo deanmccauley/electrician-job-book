@@ -63,6 +63,24 @@ export default function JobCard({ job }: JobCardProps) {
             <span className="text-gray-600">{job.materials}</span>
           </div>
         )}
+
+        {/* Financial Summary */}
+        {(job.labour_cost || job.materials_cost) && (
+          <div className="mt-2 pt-2 border-t border-gray-100 text-sm">
+            <div className="flex justify-between text-gray-600">
+              <span>Labour:</span>
+              <span>£{job.labour_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+            <div className="flex justify-between text-gray-600">
+              <span>Materials:</span>
+              <span>£{job.materials_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+            <div className="flex justify-between font-medium text-gray-900 mt-1">
+              <span>Total:</span>
+              <span>£{job.total_cost?.toFixed(2) || '0.00'}</span>
+            </div>
+          </div>
+        )}
       </div>
     </Link>
   );

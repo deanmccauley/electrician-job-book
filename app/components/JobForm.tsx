@@ -23,6 +23,9 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
     payment_status: initialData.payment_status || 'unpaid',
     time_spent: initialData.time_spent || '',
     location: initialData.location || '',
+    labour_cost: initialData.labour_cost || '',
+    materials_cost: initialData.materials_cost || '',
+    vat_rate: initialData.vat_rate || '20.0',
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,6 +52,9 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         payment_status: formData.payment_status,
         time_spent: formData.time_spent ? parseInt(formData.time_spent) : null,
         location: formData.location || null,
+        labour_cost: formData.labour_cost ? parseFloat(formData.labour_cost) : null,
+        materials_cost: formData.materials_cost ? parseFloat(formData.materials_cost) : null,
+        vat_rate: formData.vat_rate ? parseFloat(formData.vat_rate) : null,
         user_id: userData.user.id,
       };
 
@@ -57,6 +63,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
       let error;
       if (jobId) {
         // Update existing job
+        console.log('Updating job with ID:', jobId);
         const { error: updateError } = await supabase
           .from('jobs')
           .update(jobData)
@@ -64,6 +71,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         error = updateError;
       } else {
         // Create new job
+        console.log('Creating new job');
         const { error: insertError } = await supabase
           .from('jobs')
           .insert([jobData]);
@@ -75,7 +83,11 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         alert('Failed to save job: ' + error.message);
       } else {
         console.log('Job saved successfully!');
-        router.push('/jobs');
+        if (jobId) {
+          router.push(`/jobs/${jobId}`);
+        } else {
+          router.push('/jobs');
+        }
         router.refresh();
       }
     } catch (err) {
@@ -193,6 +205,52 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
               value={formData.location}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Financial Fields */}
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Labour Cost (£)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="labour_cost"
+              value={formData.labour_cost}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Materials Cost (£)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="materials_cost"
+              value={formData.materials_cost}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">VAT Rate (%)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              name="vat_rate"
+              value={formData.vat_rate}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="20.0"
             />
           </div>
         </div>

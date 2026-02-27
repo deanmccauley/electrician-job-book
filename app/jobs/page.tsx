@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import JobCard from '@/app/components/JobCard';
 import ExportButton from '@/app/components/ExportButton';
-import SearchAndFilter from '@/app/components/SearchAndFilter';
+import AdvancedFilters from '@/app/components/AdvancedFilters';
 import { Plus } from 'lucide-react';
 
 export default async function JobsPage({
@@ -15,6 +15,9 @@ export default async function JobsPage({
     search?: string;
     status?: string;
     payment?: string;
+    month?: string;
+    from?: string;
+    to?: string;
   }>;
 }) {
   // Await the searchParams
@@ -34,14 +37,35 @@ export default async function JobsPage({
     .select('*')
     .eq('user_id', user.id);
 
-  // Apply status filter
-  if (params.status && params.status !== 'all') {
-    query = query.eq('status', params.status);
+  // Handle multi-select status filters
+  if (params.status) {
+    const statuses = params.status.split(',');
+    query = query.in('status', statuses);
   }
 
-  // Apply payment filter
-  if (params.payment && params.payment !== 'all') {
-    query = query.eq('payment_status', params.payment);
+  // Handle multi-select payment filters
+  if (params.payment) {
+    const payments = params.payment.split(',');
+    query = query.in('payment_status', payments);
+  }
+
+  // Handle month filter
+  if (params.month) {
+    const [year, month] = params.month.split('-');
+    const startDate = `${year}-${month}-01`;
+    const endDate = new Date(parseInt(year), parseInt(month), 0)
+      .toISOString().split('T')[0];
+    
+    query = query
+      .gte('job_date', startDate)
+      .lte('job_date', endDate);
+  }
+
+  // Handle custom date range
+  if (params.from && params.to) {
+    query = query
+      .gte('job_date', params.from)
+      .lte('job_date', params.to);
   }
 
   // Apply search
@@ -49,7 +73,7 @@ export default async function JobsPage({
     query = query.ilike('client_name', `%${params.search}%`);
   }
 
-  // Apply date filter
+  // Apply date filter (legacy)
   if (params.filter === 'today') {
     const today = new Date().toISOString().split('T')[0];
     query = query.eq('job_date', today);
@@ -85,8 +109,8 @@ export default async function JobsPage({
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <SearchAndFilter />
+        {/* Advanced Filters */}
+        <AdvancedFilters />
 
         {/* Jobs Display */}
         {!jobs || jobs.length === 0 ? (
