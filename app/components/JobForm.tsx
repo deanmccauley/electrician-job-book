@@ -212,7 +212,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         {/* Financial Fields */}
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Labour Cost (£)</label>
+            <label className="block text-sm font-medium text-gray-700">Labour Cost (€)</label>
             <input
               type="number"
               step="0.01"
@@ -226,7 +226,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Materials Cost (£)</label>
+            <label className="block text-sm font-medium text-gray-700">Materials Cost (€)</label>
             <input
               type="number"
               step="0.01"
