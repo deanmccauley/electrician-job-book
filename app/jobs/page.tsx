@@ -4,6 +4,7 @@ import Link from 'next/link';
 import JobCard from '@/app/components/JobCard';
 import ExportButton from '@/app/components/ExportButton';
 import AdvancedFilters from '@/app/components/AdvancedFilters';
+import LogoutButton from '@/app/components/LogoutButton';
 import { Plus } from 'lucide-react';
 
 export default async function JobsPage({
@@ -106,6 +107,7 @@ export default async function JobsPage({
               New Job
             </Link>
             {jobs && jobs.length > 0 && <ExportButton jobs={jobs} />}
+             <LogoutButton />
           </div>
         </div>
 
