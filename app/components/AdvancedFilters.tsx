@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter, X, Calendar, Download } from 'lucide-react';
 import ReportGenerator from './ReportGenerator';
@@ -8,23 +8,32 @@ import ReportGenerator from './ReportGenerator';
 export default function AdvancedFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isInitialMount = useRef(true);
   
   const [showFilters, setShowFilters] = useState(false);
   const [showReport, setShowReport] = useState(false);
   
   // Multi-select states
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(
-    searchParams.get('status')?.split(',') || []
-  );
-  const [selectedPayments, setSelectedPayments] = useState<string[]>(
-    searchParams.get('payment')?.split(',') || []
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(() => {
+    const statusParam = searchParams.get('status');
+    return statusParam ? statusParam.split(',') : [];
+  });
+  
+  const [selectedPayments, setSelectedPayments] = useState<string[]>(() => {
+    const paymentParam = searchParams.get('payment');
+    return paymentParam ? paymentParam.split(',') : [];
+  });
+  
+  // Date filter states - add 'all' option
+  const [dateFilterType, setDateFilterType] = useState<'all' | 'month' | 'range'>(
+    searchParams.get('month') ? 'month' : 
+    (searchParams.get('from') || searchParams.get('to')) ? 'range' : 'all'
   );
   
-  // Date filter states
-  const [dateFilterType, setDateFilterType] = useState<'month' | 'range'>('month');
   const [selectedMonth, setSelectedMonth] = useState(
     searchParams.get('month') || new Date().toISOString().slice(0, 7)
   );
+  
   const [dateFrom, setDateFrom] = useState(searchParams.get('from') || '');
   const [dateTo, setDateTo] = useState(searchParams.get('to') || '');
 
@@ -44,6 +53,11 @@ export default function AdvancedFilters() {
 
   // Apply filters when they change
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     const params = new URLSearchParams();
     
     if (selectedStatuses.length > 0) {
@@ -54,15 +68,18 @@ export default function AdvancedFilters() {
       params.set('payment', selectedPayments.join(','));
     }
     
+    // Handle date filters
     if (dateFilterType === 'month' && selectedMonth) {
       params.set('month', selectedMonth);
     } else if (dateFilterType === 'range') {
       if (dateFrom) params.set('from', dateFrom);
       if (dateTo) params.set('to', dateTo);
     }
+    // If 'all' is selected, we don't add any date params
     
-    router.push(`/jobs?${params.toString()}`);
-  }, [selectedStatuses, selectedPayments, dateFilterType, selectedMonth, dateFrom, dateTo, router]);
+    const queryString = params.toString();
+    router.push(queryString ? `/jobs?${queryString}` : '/jobs');
+  }, [selectedStatuses, selectedPayments, dateFilterType, selectedMonth, dateFrom, dateTo]);
 
   const toggleStatus = (value: string) => {
     setSelectedStatuses(prev =>
@@ -83,7 +100,7 @@ export default function AdvancedFilters() {
   const clearFilters = () => {
     setSelectedStatuses([]);
     setSelectedPayments([]);
-    setDateFilterType('month');
+    setDateFilterType('all'); // Set to 'all' instead of default month
     setSelectedMonth(new Date().toISOString().slice(0, 7));
     setDateFrom('');
     setDateTo('');
@@ -92,8 +109,7 @@ export default function AdvancedFilters() {
 
   const hasActiveFilters = selectedStatuses.length > 0 || 
                           selectedPayments.length > 0 || 
-                          (dateFilterType === 'month' && selectedMonth !== new Date().toISOString().slice(0, 7)) ||
-                          (dateFilterType === 'range' && (dateFrom || dateTo));
+                          dateFilterType !== 'all'; // Any date filter that's not 'all' counts as active
 
   return (
     <>
@@ -113,7 +129,7 @@ export default function AdvancedFilters() {
               Filters
               {hasActiveFilters && (
                 <span className="ml-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {selectedStatuses.length + selectedPayments.length + (dateFilterType === 'month' ? 1 : 0)}
+                  {(selectedStatuses.length + selectedPayments.length + (dateFilterType !== 'all' ? 1 : 0))}
                 </span>
               )}
             </button>
@@ -148,6 +164,16 @@ export default function AdvancedFilters() {
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
+                    value="all"
+                    checked={dateFilterType === 'all'}
+                    onChange={() => setDateFilterType('all')}
+                    className="mr-2"
+                  />
+                  All Jobs
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
                     value="month"
                     checked={dateFilterType === 'month'}
                     onChange={() => setDateFilterType('month')}
@@ -174,7 +200,7 @@ export default function AdvancedFilters() {
                   onChange={(e) => setSelectedMonth(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              ) : (
+              ) : dateFilterType === 'range' ? (
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="date"
@@ -191,7 +217,7 @@ export default function AdvancedFilters() {
                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Status Multi-Select */}
