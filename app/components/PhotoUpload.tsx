@@ -12,6 +12,7 @@ interface PhotoUploadProps {
 export default function PhotoUpload({ jobId, onUploadComplete }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState<any[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const supabase = createClient();
 
   // Load existing photos
@@ -90,7 +91,7 @@ export default function PhotoUpload({ jobId, onUploadComplete }: PhotoUploadProp
     if (!confirm('Delete this photo?')) return;
 
     try {
-      // Extract file path from URL (get the last two parts: jobId/filename)
+      // Extract file path from URL
       const urlParts = photoUrl.split('/');
       const fileName = urlParts[urlParts.length - 1];
       const jobIdFromUrl = urlParts[urlParts.length - 2];
@@ -148,21 +149,49 @@ export default function PhotoUpload({ jobId, onUploadComplete }: PhotoUploadProp
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {photos.map((photo) => (
             <div key={photo.id} className="relative group">
-              <div className="aspect-square relative rounded-lg overflow-hidden border border-gray-200">
+              <div 
+                className="aspect-square relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer"
+                onClick={() => setSelectedPhoto(photo.url)}
+              >
                 <img
                   src={photo.url}
                   alt="Job photo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform"
                 />
               </div>
               <button
-                onClick={() => handleDelete(photo.id, photo.url)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(photo.id, photo.url);
+                }}
                 className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Enlarged photo modal */}
+      {selectedPhoto && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <img 
+              src={selectedPhoto} 
+              alt="Enlarged view" 
+              className="max-w-full max-h-[90vh] object-contain"
+            />
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       )}
     </div>

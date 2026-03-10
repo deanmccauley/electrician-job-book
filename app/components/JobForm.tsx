@@ -30,15 +30,12 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submitted with data:', formData);
     setLoading(true);
 
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
-      console.log('User data:', userData);
       
       if (userError || !userData.user) {
-        console.error('User error:', userError);
         router.push('/');
         return;
       }
@@ -58,20 +55,14 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         user_id: userData.user.id,
       };
 
-      console.log('Attempting to save job:', jobData);
-
       let error;
       if (jobId) {
-        // Update existing job
-        console.log('Updating job with ID:', jobId);
         const { error: updateError } = await supabase
           .from('jobs')
           .update(jobData)
           .eq('id', jobId);
         error = updateError;
       } else {
-        // Create new job
-        console.log('Creating new job');
         const { error: insertError } = await supabase
           .from('jobs')
           .insert([jobData]);
@@ -79,10 +70,8 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
       }
 
       if (error) {
-        console.error('Database error:', error);
         alert('Failed to save job: ' + error.message);
       } else {
-        console.log('Job saved successfully!');
         if (jobId) {
           router.push(`/jobs/${jobId}`);
         } else {
@@ -91,7 +80,6 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
         router.refresh();
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
       alert('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -250,7 +238,7 @@ export default function JobForm({ initialData = {}, jobId }: JobFormProps) {
               value={formData.vat_rate}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="20.0"
+              placeholder="13.5"
             />
           </div>
         </div>

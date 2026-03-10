@@ -19,6 +19,11 @@ export default function JobCard({ job }: JobCardProps) {
     partial: 'bg-orange-100 text-orange-800',
   };
 
+  // Calculate totals with VAT
+  const subtotal = (job.labour_cost || 0) + (job.materials_cost || 0);
+  const vatRate = job.vat_rate || 13.5;
+  const totalWithVat = subtotal * (1 + vatRate / 100);
+
   return (
     <Link href={`/jobs/${job.id}`}>
       <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow border border-gray-200">
@@ -64,20 +69,16 @@ export default function JobCard({ job }: JobCardProps) {
           </div>
         )}
 
-        {/* Financial Summary */}
+        {/* Financial Summary with VAT */}
         {(job.labour_cost || job.materials_cost) && (
           <div className="mt-2 pt-2 border-t border-gray-100 text-sm">
             <div className="flex justify-between text-gray-600">
-              <span>Labour:</span>
-              <span>€{job.labour_cost?.toFixed(2) || '0.00'}</span>
-            </div>
-            <div className="flex justify-between text-gray-600">
-              <span>Materials:</span>
-              <span>€{job.materials_cost?.toFixed(2) || '0.00'}</span>
+              <span>Subtotal:</span>
+              <span>€{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-medium text-gray-900 mt-1">
-              <span>Total:</span>
-              <span>€{job.total_cost?.toFixed(2) || '0.00'}</span>
+              <span>Total (inc VAT):</span>
+              <span>€{totalWithVat.toFixed(2)}</span>
             </div>
           </div>
         )}

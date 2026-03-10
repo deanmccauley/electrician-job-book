@@ -5,7 +5,7 @@ import JobCard from '@/app/components/JobCard';
 import ExportButton from '@/app/components/ExportButton';
 import AdvancedFilters from '@/app/components/AdvancedFilters';
 import LogoutButton from '@/app/components/LogoutButton';
-import { Plus } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
 
 export default async function JobsPage({
   searchParams,
@@ -21,7 +21,6 @@ export default async function JobsPage({
     to?: string;
   }>;
 }) {
-  // Await the searchParams
   const params = await searchParams;
   
   const supabase = await createServerSupabaseClient();
@@ -95,7 +94,7 @@ export default async function JobsPage({
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Header with Settings and Logout */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Jobs</h1>
           <div className="flex space-x-3">
@@ -107,7 +106,14 @@ export default async function JobsPage({
               New Job
             </Link>
             {jobs && jobs.length > 0 && <ExportButton jobs={jobs} />}
-             <LogoutButton />
+            <Link
+              href="/settings"
+              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </Link>
+            <LogoutButton />
           </div>
         </div>
 
