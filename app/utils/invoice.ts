@@ -25,5 +25,5 @@ export async function getNextInvoiceNumber() {
       .insert({ user_id: user.id, last_number: 1 });
   }
 
-  return `INV-${nextNumber.toString().padStart(3, '0')}`;
+  return `nextNumber.toString().padStart(4, '0')`;
 }

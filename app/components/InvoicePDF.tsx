@@ -116,7 +116,7 @@ const InvoicePDF: React.FC<InvoicePDFProps> = ({
             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{businessDetails.business_name}</Text>
             <Text style={{ fontSize: 10 }}>{businessDetails.business_address}</Text>
             <Text style={{ fontSize: 10 }}>Tel: {businessDetails.business_phone}</Text>
-            <Text style={{ fontSize: 10 }}>VAT: {businessDetails.business_vat}</Text>
+            <Text style={{ fontSize: 10 }}>VAT No.: {businessDetails.business_vat}</Text>
           </View>
         </View>
 
