@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
@@ -34,12 +34,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     padding: 10,
   },
-  clientSection: {
-    marginBottom: 30,
+  invoiceLeft: {
+    width: '50%',
+  },
+  invoiceRight: {
+    width: '50%',
+    textAlign: 'right',
+  },
+  clientName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  clientAddress: {
+    fontSize: 10,
+    color: '#4b5563',
+    marginBottom: 2,
   },
   table: {
     display: 'flex',
-    width: 'auto',
+    width: '100%',
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#bfbfbf',
@@ -49,17 +63,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#bfbfbf',
+    minHeight: 25,
+    alignItems: 'center',
   },
   tableHeader: {
     backgroundColor: '#2563eb',
+  },
+  tableHeaderText: {
     color: 'white',
+    fontSize: 10,
+    padding: 5,
     fontWeight: 'bold',
   },
-  tableCol1: { width: '10%', padding: 5 },
-  tableCol2: { width: '50%', padding: 5 },
+  tableCol1: { width: '10%', padding: 5, textAlign: 'center' },
+  tableCol2: { width: '40%', padding: 5, textAlign: 'left' },
   tableCol3: { width: '15%', padding: 5, textAlign: 'right' },
   tableCol4: { width: '15%', padding: 5, textAlign: 'right' },
-  tableCol5: { width: '10%', padding: 5, textAlign: 'right' },
+  tableCol5: { width: '20%', padding: 5, textAlign: 'right' },
+  tableCell: {
+    fontSize: 10,
+  },
   totals: {
     alignItems: 'flex-end',
     marginBottom: 30,
@@ -69,6 +92,13 @@ const styles = StyleSheet.create({
     width: '40%',
     justifyContent: 'space-between',
     padding: 5,
+  },
+  totalText: {
+    fontSize: 10,
+  },
+  totalAmount: {
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   footer: {
     position: 'absolute',
@@ -109,8 +139,12 @@ const InvoicePDF: React.FC<InvoicePDFProps> = ({
       <Page size="A4" style={styles.page}>
         {/* Header with Logo */}
         <View style={styles.header}>
-          {businessDetails.logo_url && (
-            <Image src={businessDetails.logo_url} style={styles.logo} />
+          {businessDetails.business_logo_url && 
+           businessDetails.business_logo_url.startsWith('data:image') && (
+            <Image 
+              src={businessDetails.business_logo_url}
+              style={styles.logo} 
+            />
           )}
           <View style={styles.businessDetails}>
             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{businessDetails.business_name}</Text>
@@ -125,14 +159,13 @@ const InvoicePDF: React.FC<InvoicePDFProps> = ({
 
         {/* Invoice Info */}
         <View style={styles.invoiceInfo}>
-          <View>
-            <Text>Invoice Number: {invoiceNumber}</Text>
-            <Text>Date: {new Date().toLocaleDateString()}</Text>
+          <View style={styles.invoiceLeft}>
+            <Text style={{ fontSize: 10, marginBottom: 2 }}>Invoice No.: {invoiceNumber}</Text>
+            <Text style={{ fontSize: 10 }}>Date: {new Date().toLocaleDateString()}</Text>
           </View>
-          <View>
-            <Text>Client:</Text>
-            <Text>{job.client_name}</Text>
-            <Text>{job.location || 'No address provided'}</Text>
+          <View style={styles.invoiceRight}>
+            <Text style={styles.clientName}>{job.client_name}</Text>
+            <Text style={styles.clientAddress}>{job.location || 'No address provided'}</Text>
           </View>
         </View>
 
@@ -140,36 +173,36 @@ const InvoicePDF: React.FC<InvoicePDFProps> = ({
         <View style={styles.table}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.tableCol1}>Qty</Text>
-            <Text style={styles.tableCol2}>Description</Text>
-            <Text style={styles.tableCol3}>Unit Price</Text>
-            <Text style={styles.tableCol4}>VAT Rate</Text>
-            <Text style={styles.tableCol5}>Total</Text>
+            <Text style={[styles.tableCol1, styles.tableHeaderText]}>Qty</Text>
+            <Text style={[styles.tableCol2, styles.tableHeaderText]}>Description</Text>
+            <Text style={[styles.tableCol3, styles.tableHeaderText]}>Unit Price</Text>
+            <Text style={[styles.tableCol4, styles.tableHeaderText]}>VAT Rate</Text>
+            <Text style={[styles.tableCol5, styles.tableHeaderText]}>Total</Text>
           </View>
 
           {/* Table Row */}
           <View style={styles.tableRow}>
-            <Text style={styles.tableCol1}>{quantity || '1'}</Text>
-            <Text style={styles.tableCol2}>{description || job.description}</Text>
-            <Text style={styles.tableCol3}>€{subtotal.toFixed(2)}</Text>
-            <Text style={styles.tableCol4}>{vatRate}%</Text>
-            <Text style={styles.tableCol5}>€{total.toFixed(2)}</Text>
+            <Text style={[styles.tableCol1, styles.tableCell]}>{quantity || '1'}</Text>
+            <Text style={[styles.tableCol2, styles.tableCell]}>{description || job.description}</Text>
+            <Text style={[styles.tableCol3, styles.tableCell]}>€{subtotal.toFixed(2)}</Text>
+            <Text style={[styles.tableCol4, styles.tableCell]}>{vatRate}%</Text>
+            <Text style={[styles.tableCol5, styles.tableCell]}>€{total.toFixed(2)}</Text>
           </View>
         </View>
 
         {/* Totals */}
         <View style={styles.totals}>
           <View style={styles.totalRow}>
-            <Text>Subtotal:</Text>
-            <Text>€{subtotal.toFixed(2)}</Text>
+            <Text style={styles.totalText}>Subtotal:</Text>
+            <Text style={styles.totalAmount}>€{subtotal.toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text>VAT ({vatRate}%):</Text>
-            <Text>€{vatAmount.toFixed(2)}</Text>
+            <Text style={styles.totalText}>VAT ({vatRate}%):</Text>
+            <Text style={styles.totalAmount}>€{vatAmount.toFixed(2)}</Text>
           </View>
           <View style={[styles.totalRow, { fontWeight: 'bold' }]}>
-            <Text>Total:</Text>
-            <Text>€{total.toFixed(2)}</Text>
+            <Text style={styles.totalText}>Total:</Text>
+            <Text style={styles.totalAmount}>€{total.toFixed(2)}</Text>
           </View>
         </View>
 

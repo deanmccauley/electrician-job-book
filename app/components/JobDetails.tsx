@@ -51,18 +51,16 @@ export default function JobDetails({ job }: JobDetailsProps) {
       if (business) {
         setBusinessDetails(business);
         
-        // Get next invoice number by calling a server-side function
-        // Using a fetch to a server endpoint would be cleaner, but for now we'll
-        // simulate a unique invoice number
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 1000);
-        const number = `INV-${timestamp.toString().slice(-4)}${random}`;
-        setInvoiceNumber(number);
+        // Call the API route to get invoice number
+        const response = await fetch('/api/get-invoice-number');
+        const data = await response.json();
+        setInvoiceNumber(data.invoiceNumber);
         
         setShowInvoiceModal(true);
       }
     } catch (error) {
       console.error('Error preparing invoice:', error);
+      alert('Failed to generate invoice number');
     } finally {
       setLoadingInvoice(false);
     }

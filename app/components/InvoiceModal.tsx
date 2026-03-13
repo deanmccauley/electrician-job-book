@@ -1,22 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/app/utils/supabase';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import InvoicePDF from './InvoicePDF';
-import { X, Download, Loader2 } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 
 interface InvoiceModalProps {
   job: any;
   businessDetails: any;
-  invoiceNumber: string; // Receive from server component
+  invoiceNumber: string;
   onClose: () => void;
 }
 
 export default function InvoiceModal({ job, businessDetails, invoiceNumber, onClose }: InvoiceModalProps) {
   const [quantity, setQuantity] = useState('1');
   const [description, setDescription] = useState(job.description);
-  const [loading, setLoading] = useState(false);
+
+  const subtotal = (job.labour_cost || 0) + (job.materials_cost || 0);
+  const vatRate = job.vat_rate || 13.5;
+  const vatAmount = subtotal * (vatRate / 100);
+  const total = subtotal + vatAmount;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -72,15 +75,15 @@ export default function InvoiceModal({ job, businessDetails, invoiceNumber, onCl
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">
             <div className="flex justify-between">
               <span>Subtotal:</span>
-              <span>€{((job.labour_cost || 0) + (job.materials_cost || 0)).toFixed(2)}</span>
+              <span>€{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span>VAT ({job.vat_rate || 13.5}%):</span>
-              <span>€{((job.labour_cost || 0) + (job.materials_cost || 0)) * (job.vat_rate || 13.5) / 100}</span>
+              <span>VAT ({vatRate}%):</span>
+              <span>€{vatAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-lg pt-2 border-t">
               <span>Total:</span>
-              <span>€{((job.labour_cost || 0) + (job.materials_cost || 0)) * (1 + (job.vat_rate || 13.5) / 100)}</span>
+              <span>€{total.toFixed(2)}</span>
             </div>
           </div>
         </div>

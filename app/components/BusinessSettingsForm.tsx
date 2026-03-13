@@ -24,35 +24,38 @@ export default function BusinessSettingsForm({ initialData }: BusinessSettingsPr
     business_logo_url: initialData?.business_logo_url || '',
   });
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userData.user.id}/logo.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('business-logos')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from('business-logos')
-        .getPublicUrl(fileName);
-
-      setFormData({ ...formData, business_logo_url: urlData.publicUrl });
-    } catch (error) {
-      console.error('Error uploading logo:', error);
-    } finally {
-      setUploading(false);
-    }
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   };
+
+const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setUploading(true);
+  try {
+    // Simple FileReader conversion
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result as string;
+      setFormData({ ...formData, business_logo_url: base64String });
+      setUploading(false);
+    };
+    reader.onerror = () => {
+      console.error('Error reading file');
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('Error converting logo:', error);
+    setUploading(false);
+  }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +99,7 @@ export default function BusinessSettingsForm({ initialData }: BusinessSettingsPr
               className="hidden"
             />
             <Upload className="w-4 h-4 inline mr-2" />
-            {uploading ? 'Uploading...' : 'Upload Logo'}
+            {uploading ? 'Converting...' : 'Upload Logo'}
           </label>
         </div>
       </div>
