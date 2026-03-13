@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/app/utils/supabase';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFViewer } from '@react-pdf/renderer';
 import JobReportPDF from './JobReportPDF';
 import { X, Loader2, Eye, Download } from 'lucide-react';
 
@@ -56,7 +56,6 @@ export default function ReportGenerator({ filters, onClose }: ReportGeneratorPro
 
       // Apply date filters
       if (filters.month) {
-        // Filter by specific month
         const [year, month] = filters.month.split('-');
         const startDate = `${year}-${month}-01`;
         const endDate = new Date(parseInt(year), parseInt(month), 0)
@@ -66,13 +65,11 @@ export default function ReportGenerator({ filters, onClose }: ReportGeneratorPro
           .gte('job_date', startDate)
           .lte('job_date', endDate);
       } else if (filters.dateFrom && filters.dateTo) {
-        // Filter by custom range
         query = query
           .gte('job_date', filters.dateFrom)
           .lte('job_date', filters.dateTo);
       }
 
-      // Order by date
       query = query.order('job_date', { ascending: true });
 
       const { data, error } = await query;
@@ -86,110 +83,128 @@ export default function ReportGenerator({ filters, onClose }: ReportGeneratorPro
     }
   };
 
-  // Calculate summary statistics
   const totalJobs = jobs.length;
-  const totalRevenue = jobs.reduce((sum, job) => sum + (job.total_cost || 0), 0);
+  const totalRevenue = jobs.reduce((sum, job) => sum + (job.total_with_vat || ((job.labour_cost || 0) + (job.materials_cost || 0)) * (1 + (job.vat_rate || 13.5)/100) || 0), 0);
   const totalLabour = jobs.reduce((sum, job) => sum + (job.labour_cost || 0), 0);
   const totalMaterials = jobs.reduce((sum, job) => sum + (job.materials_cost || 0), 0);
   const completedCount = jobs.filter(j => j.status === 'completed').length;
   const unpaidCount = jobs.filter(j => j.payment_status === 'unpaid').length;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold text-gray-900">Job Report</h2>
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Job Report</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Summary Stats */}
         {!loading && !error && jobs.length > 0 && (
-          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b">
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-sm text-gray-500">Total Jobs</p>
-              <p className="text-2xl font-bold">{totalJobs}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 sm:gap-4 p-2 sm:p-4 bg-gray-50 border-b">
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Total Jobs</p>
+              <p className="text-base sm:text-2xl font-bold truncate">{totalJobs}</p>
             </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-sm text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-bold text-green-600">€{totalRevenue.toFixed(2)}</p>
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Total Revenue</p>
+              <p className="text-sm sm:text-2xl font-bold text-green-600 truncate">
+                €{totalRevenue.toFixed(2)}
+              </p>
             </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-sm text-gray-500">Labour</p>
-              <p className="text-lg font-semibold">€{totalLabour.toFixed(2)}</p>
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Labour</p>
+              <p className="text-xs sm:text-lg font-semibold truncate">
+                €{totalLabour.toFixed(2)}
+              </p>
             </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-sm text-gray-500">Materials</p>
-              <p className="text-lg font-semibold">€{totalMaterials.toFixed(2)}</p>
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Materials</p>
+              <p className="text-xs sm:text-lg font-semibold truncate">
+                €{totalMaterials.toFixed(2)}
+              </p>
             </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-sm text-gray-500">Completed/Unpaid</p>
-              <p className="text-lg font-semibold">{completedCount}/{unpaidCount}</p>
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm col-span-2 sm:col-span-1">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Completed/Unpaid</p>
+              <p className="text-sm sm:text-lg font-semibold truncate">
+                {completedCount}/{unpaidCount}
+              </p>
             </div>
           </div>
         )}
 
         {/* View Toggle */}
         {!loading && !error && jobs.length > 0 && (
-          <div className="flex justify-center space-x-4 p-2 bg-gray-100">
+          <div className="flex justify-center space-x-2 sm:space-x-4 p-2 bg-gray-100">
             <button
               onClick={() => setViewMode('preview')}
-              className={`flex items-center px-4 py-2 rounded-md ${
+              className={`flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm sm:text-base ${
                 viewMode === 'preview'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
+              <Eye className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Preview</span>
+              <span className="xs:hidden">View</span>
             </button>
-            <PDFDownloadLink
-              document={<JobReportPDF jobs={jobs} filters={filters} />}
-              fileName={`job-report-${new Date().toISOString().split('T')[0]}.pdf`}
-              className={`flex items-center px-4 py-2 rounded-md ${
+            <button
+              onClick={() => setViewMode('download')}
+              className={`flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm sm:text-base ${
                 viewMode === 'download'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => setViewMode('download')}
             >
-              <Download className="w-4 h-4 mr-2" />
-              Download PDF
-            </PDFDownloadLink>
+              <Download className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Download</span>
+              <span className="xs:hidden">DL</span>
+            </button>
           </div>
         )}
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto p-4">
-          {loading && (
-            <div className="h-full flex items-center justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            </div>
-          )}
+{/* Content - Simplified scrolling */}
+<div className="flex-1 p-2 sm:p-4 bg-gray-100 overflow-hidden">
+  {loading && (
+    <div className="h-full flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+    </div>
+  )}
 
-          {error && (
-            <div className="h-full flex items-center justify-center text-red-600">
-              Error: {error}
-            </div>
-          )}
+  {error && (
+    <div className="h-full flex items-center justify-center text-red-600">
+      Error: {error}
+    </div>
+  )}
 
-          {!loading && !error && jobs.length === 0 && (
-            <div className="h-full flex items-center justify-center text-gray-500">
-              No jobs match the selected filters
-            </div>
-          )}
+  {!loading && !error && jobs.length === 0 && (
+    <div className="h-full flex items-center justify-center text-gray-500">
+      No jobs match the selected filters
+    </div>
+  )}
 
-          {!loading && !error && jobs.length > 0 && viewMode === 'preview' && (
-            <PDFViewer className="w-full h-full border-0">
-              <JobReportPDF jobs={jobs} filters={filters} />
-            </PDFViewer>
-          )}
-        </div>
+  {!loading && !error && jobs.length > 0 && viewMode === 'preview' && (
+    <div className="h-full w-full">
+      <PDFViewer 
+        className="w-full h-full border-0 rounded-lg"
+        showToolbar={true}
+      >
+        <JobReportPDF jobs={jobs} filters={filters} />
+      </PDFViewer>
+    </div>
+  )}
+
+  {!loading && !error && jobs.length > 0 && viewMode === 'download' && (
+    <div className="h-full flex items-center justify-center">
+      <p className="text-gray-500">Click download button above to save PDF</p>
+    </div>
+  )}
+</div>
       </div>
     </div>
   );

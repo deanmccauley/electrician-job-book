@@ -9,3 +9,127 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }
+/* Custom breakpoint for extra small devices */
+@media (min-width: 480px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+}
+@media (max-width: 479px) {
+  .xs\:inline {
+    display: none;
+  }
+  .xs\:hidden {
+    display: inline;
+  }
+}
+/* Force smaller text on very small screens */
+@media (max-width: 400px) {
+  .text-2xl {
+    font-size: 1.1rem !important;
+    line-height: 1.4rem !important;
+  }
+  .text-lg {
+    font-size: 0.9rem !important;
+  }
+  .gap-2 {
+    gap: 0.3rem !important;
+  }
+  .p-2 {
+    padding: 0.3rem !important;
+  }
+}
+/* PDF viewer responsive fixes */
+.react-pdf__Document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.react-pdf__Page {
+  max-width: 100%;
+  height: auto !important;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.react-pdf__Page canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+}
+
+/* Custom scrollbar for better UX */
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* PDF viewer responsive heights */
+@media (min-width: 640px) {
+  .pdf-viewer {
+    height: 600px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .pdf-viewer {
+    height: 700px !important;
+  }
+}
+
+/* Custom scrollbar for better UX */
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Extra small devices breakpoint */
+@media (min-width: 480px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+}
+
+@media (max-width: 479px) {
+  .xs\:inline {
+    display: none;
+  }
+  .xs\:hidden {
+    display: inline;
+  }
+}
