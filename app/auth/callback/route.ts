@@ -8,9 +8,11 @@ export async function GET(request: NextRequest) {
   
   if (code) {
     const supabase = await createServerSupabaseClient();
+    // Exchange code for session - this sets the cookies
     await supabase.auth.exchangeCodeForSession(code);
   }
 
   // Redirect to the password setup page
-  return NextResponse.redirect(requestUrl.origin + '/auth/set-password');
+  // The cookies are now set, so the client will be authenticated
+  return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin));
 }
