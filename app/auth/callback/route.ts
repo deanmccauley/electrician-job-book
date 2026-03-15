@@ -5,14 +5,24 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  
-  if (code) {
-    const supabase = await createServerSupabaseClient();
-    // Exchange code for session - this sets the cookies
-    await supabase.auth.exchangeCodeForSession(code);
+  const tokenHash = requestUrl.searchParams.get('token_hash');
+  const type = requestUrl.searchParams.get('type') ?? 'magiclink';
+
+  if (!code && !tokenHash) {
+    return NextResponse.redirect(new URL('/auth/client-callback' + requestUrl.search, requestUrl.origin));
   }
 
-  // Redirect to the password setup page
-  // The cookies are now set, so the client will be authenticated
-  return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin));
+  const supabase = await createServerSupabaseClient();
+
+  if (tokenHash) {
+    await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'email' });
+    return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin));
+  } 
+  
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code);
+    return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin));
+  }
+
+  return NextResponse.redirect(new URL('/auth/error?reason=auth_failed', requestUrl.origin));
 }

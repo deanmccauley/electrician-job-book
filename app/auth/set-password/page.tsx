@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/app/utils/supabase';
 
@@ -9,8 +9,36 @@ export default function SetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      // Add delay to allow cookies to propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (session) {
+        setIsAuthenticated(true);
+        setChecking(false);
+      } else {
+        // Try to get user directly as fallback
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsAuthenticated(true);
+          setChecking(false);
+        } else {
+          setError('No active session. Please request a new invitation link.');
+          setChecking(false);
+        }
+      }
+    };
+    
+    checkSession();
+  }, [supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +47,12 @@ export default function SetPasswordPage() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
       setLoading(false);
       return;
     }
@@ -32,8 +66,34 @@ export default function SetPasswordPage() {
       setLoading(false);
     } else {
       router.push('/jobs');
+      router.refresh();
     }
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow text-center">
+          <div className="animate-pulse">
+            <p className="text-gray-600">Verifying your invitation...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-gray-600 text-sm">
+            Please check your email for a valid invitation link or contact support.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
