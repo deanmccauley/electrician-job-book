@@ -13,6 +13,11 @@ export default function AdvancedFilters() {
   const [showFilters, setShowFilters] = useState(false);
   const [showReport, setShowReport] = useState(false);
   
+  // Search term state
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  
   // Multi-select states
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(() => {
     const statusParam = searchParams.get('status');
@@ -24,7 +29,7 @@ export default function AdvancedFilters() {
     return paymentParam ? paymentParam.split(',') : [];
   });
   
-  // Date filter states - add 'all' option
+  // Date filter states
   const [dateFilterType, setDateFilterType] = useState<'all' | 'month' | 'range'>(
     searchParams.get('month') ? 'month' : 
     (searchParams.get('from') || searchParams.get('to')) ? 'range' : 'all'
@@ -60,6 +65,10 @@ export default function AdvancedFilters() {
 
     const params = new URLSearchParams();
     
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    }
+    
     if (selectedStatuses.length > 0) {
       params.set('status', selectedStatuses.join(','));
     }
@@ -68,18 +77,16 @@ export default function AdvancedFilters() {
       params.set('payment', selectedPayments.join(','));
     }
     
-    // Handle date filters
     if (dateFilterType === 'month' && selectedMonth) {
       params.set('month', selectedMonth);
     } else if (dateFilterType === 'range') {
       if (dateFrom) params.set('from', dateFrom);
       if (dateTo) params.set('to', dateTo);
     }
-    // If 'all' is selected, we don't add any date params
     
     const queryString = params.toString();
     router.push(queryString ? `/jobs?${queryString}` : '/jobs');
-  }, [selectedStatuses, selectedPayments, dateFilterType, selectedMonth, dateFrom, dateTo]);
+  }, [searchTerm, selectedStatuses, selectedPayments, dateFilterType, selectedMonth, dateFrom, dateTo, router]);
 
   const toggleStatus = (value: string) => {
     setSelectedStatuses(prev =>
@@ -98,18 +105,20 @@ export default function AdvancedFilters() {
   };
 
   const clearFilters = () => {
+    setSearchTerm('');
     setSelectedStatuses([]);
     setSelectedPayments([]);
-    setDateFilterType('all'); // Set to 'all' instead of default month
+    setDateFilterType('all');
     setSelectedMonth(new Date().toISOString().slice(0, 7));
     setDateFrom('');
     setDateTo('');
     router.push('/jobs');
   };
 
-  const hasActiveFilters = selectedStatuses.length > 0 || 
+  const hasActiveFilters = searchTerm !== '' || 
+                          selectedStatuses.length > 0 || 
                           selectedPayments.length > 0 || 
-                          dateFilterType !== 'all'; // Any date filter that's not 'all' counts as active
+                          dateFilterType !== 'all';
 
   return (
     <>
@@ -129,7 +138,7 @@ export default function AdvancedFilters() {
               Filters
               {hasActiveFilters && (
                 <span className="ml-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {(selectedStatuses.length + selectedPayments.length + (dateFilterType !== 'all' ? 1 : 0))}
+                  {(searchTerm ? 1 : 0) + selectedStatuses.length + selectedPayments.length + (dateFilterType !== 'all' ? 1 : 0)}
                 </span>
               )}
             </button>
@@ -157,6 +166,18 @@ export default function AdvancedFilters() {
         {/* Filters Panel */}
         {showFilters && (
           <div className="mt-4 space-y-4">
+            {/* Search Bar */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search Clients</label>
+              <input
+                type="text"
+                placeholder="Search by client name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             {/* Date Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
